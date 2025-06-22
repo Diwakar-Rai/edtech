@@ -6,13 +6,10 @@ const {
   loginValidatorRules,
 } = require("../middlewares/userValidator.js");
 const { validate } = require("../middlewares/validate.js");
-const { createUser, loginUser, getMe, getAllUser, getSingleUser } =
-  userController;
+const { createUser, loginUser, getMe } = userController;
 
 Router.post("/user", registerValidatorRules(), validate, createUser);
 Router.post("/login", loginValidatorRules(), validate, loginUser);
 Router.get("/user", jwtVerify, getMe);
-Router.get("/allUser", getAllUser);
-Router.get("/singleUser/:id", getSingleUser);
 
 module.exports = Router;

@@ -5,7 +5,6 @@ const CustomError = require("../utils/customError.js");
 
 //! Function to generate token
 const generateToken = id => {
-  console.log(id, "id");
   return jwt.sign({ id }, dotenv.JWT_SECRET, {
     expiresIn: dotenv.JWT_EXPIRES_IN,
   });

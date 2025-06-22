@@ -17,8 +17,7 @@ const jwtVerify = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    console.log(decoded, "decoded");
-    let user = await userModel.findById(decoded.id).select("_id email");
+    let user = await userModel.findById(decoded.id).select("_id email role");
     if (!user) {
       return next(new CustomError("User not found", 404));
     }

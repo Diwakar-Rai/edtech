@@ -5,6 +5,7 @@ const express = require("express");
 const envConfig = require("./config/index.config.js");
 const connectDatabase = require("./config/db.config.js");
 const userRoutes = require("./routes/user.routes.js");
+const bootcampRoutes = require("./routes/bootcamp.routes.js");
 const errorHandler = require("./middlewares/errorHandler.js");
 
 //% Destructuring the env
@@ -19,6 +20,7 @@ app.use(express.json());
 
 //% Creating the routes
 app.use("/api/v1/auth", userRoutes);
+app.use("/api/v1/bootcamp", bootcampRoutes);
 
 //% Centralized error handling
 app.use(errorHandler);
