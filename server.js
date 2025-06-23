@@ -2,11 +2,12 @@
 const express = require("express");
 
 // !Custom modules
-const envConfig = require("./config/index.config.js");
 const connectDatabase = require("./config/db.config.js");
+const errorHandler = require("./middlewares/errorHandler.js");
+const envConfig = require("./config/index.config.js");
 const userRoutes = require("./routes/user.routes.js");
 const bootcampRoutes = require("./routes/bootcamp.routes.js");
-const errorHandler = require("./middlewares/errorHandler.js");
+const courseRoutes = require("./routes/course.route.js");
 
 //% Destructuring the env
 const { PORT, MONGO_URL } = envConfig;
@@ -21,6 +22,7 @@ app.use(express.json());
 //% Creating the routes
 app.use("/api/v1/auth", userRoutes);
 app.use("/api/v1/bootcamp", bootcampRoutes);
+app.use("/api/v1/course", courseRoutes);
 
 //% Centralized error handling
 app.use(errorHandler);
