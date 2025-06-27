@@ -26,6 +26,7 @@ let userSchema = new Schema(
       //% Makes sure that password is not returned with any response
       select: false,
     },
+    isVerified: { type: Boolean, default: false },
   },
   {
     //% Automatically adds createdAt and updated at fields in the document

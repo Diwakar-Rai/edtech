@@ -41,4 +41,10 @@ const bootcampSchema = new Schema({
   },
 });
 
+//% cascading delete for the orphaned courses
+bootcampSchema.post("findOneAndDelete", async function (doc) {
+  if (doc) {
+    await doc.model("Courses").deleteMany({ bootcamp: this._id });
+  }
+});
 module.exports = model("Bootcamps", bootcampSchema);

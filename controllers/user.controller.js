@@ -2,6 +2,8 @@ const User = require("../models/user.model.js");
 const jwt = require("jsonwebtoken");
 const dotenv = require("../config/index.config.js");
 const CustomError = require("../utils/customError.js");
+const nodemailer = require("nodemailer");
+console.log(dotenv.MY_PASSWORD);
 
 //! Function to generate token
 const generateToken = id => {
@@ -9,6 +11,19 @@ const generateToken = id => {
     expiresIn: dotenv.JWT_EXPIRES_IN,
   });
 };
+/**
+ * Code for handling the email verification
+ */
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  port: 465,
+  host: "smtp.gmail.com",
+  secure: true,
+  auth: {
+    user: dotenv.MY_EMAIL,
+    pass: dotenv.MY_PASSWORD,
+  },
+});
 
 /**
  * Function to create a user
@@ -20,14 +35,36 @@ const generateToken = id => {
 exports.createUser = async (req, res, next) => {
   try {
     let body = req.body;
+
     let isExisting = await User.findOne({ email: body.email });
     if (isExisting) {
       return res.status(400).json({ message: "User already exists" });
     }
-    await User.create(body);
+    let user = await User.create(body);
+    let url = `${dotenv.BASE_URL}/api/v1/auth/verify/${generateToken(
+      user._id
+    )}`;
+    await transporter.sendMail({
+      from: `My App- ${dotenv.MY_EMAIL}`,
+      to: body.email,
+      subject: "Verify your email",
+      html: `
+      
+      <h1>Please verify your email by following this link</h1> <a href="${url}">Email Verification</a>`,
+    });
     return res
       .status(201)
       .json({ message: "user created successfully", statusCode: 201 });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.emailVerification = async (req, res) => {
+  try {
+    const decoded = jwt.verify(req.params.token, dotenv.JWT_SECRET);
+    await User.findByIdAndUpdate(decoded.id, { isVerified: true });
+    res.send("Email Verified successfully");
   } catch (error) {
     next(error);
   }

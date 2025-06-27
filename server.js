@@ -1,5 +1,6 @@
 // !Third Party modules
 const express = require("express");
+const cors = require("cors");
 
 // !Custom modules
 const connectDatabase = require("./config/db.config.js");
@@ -18,6 +19,7 @@ const app = express();
 //% Parsing the body of the request object
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cors());
 
 //% Creating the routes
 app.use("/api/v1/auth", userRoutes);
