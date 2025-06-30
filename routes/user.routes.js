@@ -11,6 +11,6 @@ const { createUser, loginUser, getMe, emailVerification } = userController;
 Router.post("/user", registerValidatorRules(), validate, createUser);
 Router.post("/login", loginValidatorRules(), validate, loginUser);
 Router.get("/user", jwtVerify, getMe);
-Router.get("/verify/:token", emailVerification);
+Router.post("/verify", emailVerification);
 
 module.exports = Router;

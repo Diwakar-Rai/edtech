@@ -1,9 +1,9 @@
-const User = require("../models/user.model.js");
+const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
+const User = require("../models/user.model.js");
 const dotenv = require("../config/index.config.js");
 const CustomError = require("../utils/customError.js");
-const nodemailer = require("nodemailer");
-console.log(dotenv.MY_PASSWORD);
+const asyncHandler = require("../utils/async.js");
 
 //! Function to generate token
 const generateToken = id => {
@@ -24,6 +24,13 @@ const transporter = nodemailer.createTransport({
     pass: dotenv.MY_PASSWORD,
   },
 });
+/**
+ * Function to generate OTP
+ */
+function generateOTP() {
+  let otp = Math.floor(100000 + Math.random() * 900000).toString();
+  return otp;
+}
 
 /**
  * Function to create a user
@@ -40,17 +47,17 @@ exports.createUser = async (req, res, next) => {
     if (isExisting) {
       return res.status(400).json({ message: "User already exists" });
     }
-    let user = await User.create(body);
-    let url = `${dotenv.BASE_URL}/api/v1/auth/verify/${generateToken(
-      user._id
-    )}`;
+    let otp = generateOTP();
+    let otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes validity
+    let user = await User.create({ ...body, otp, otpExpires });
+
     await transporter.sendMail({
       from: `My App- ${dotenv.MY_EMAIL}`,
       to: body.email,
       subject: "Verify your email",
       html: `
       
-      <h1>Please verify your email by following this link</h1> <a href="${url}">Email Verification</a>`,
+      <h1>Please verify your email by using this OTP</h1><h2>${otp}</h2>`,
     });
     return res
       .status(201)
@@ -62,9 +69,23 @@ exports.createUser = async (req, res, next) => {
 
 exports.emailVerification = async (req, res) => {
   try {
-    const decoded = jwt.verify(req.params.token, dotenv.JWT_SECRET);
-    await User.findByIdAndUpdate(decoded.id, { isVerified: true });
-    res.send("Email Verified successfully");
+    let { email, otp } = req.body;
+    let user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found!" });
+    }
+    if (user.isVerified) {
+      return res.json({ message: "User already verified!" });
+    }
+    if (user.otp !== otp || user.otpExpires < new Date()) {
+      return res.status(400).json({ message: "Invalid or expired OTP!" });
+    }
+
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+    return res.status(200).json({ message: "Email verified successfully" });
   } catch (error) {
     next(error);
   }

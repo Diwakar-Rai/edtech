@@ -27,6 +27,8 @@ let userSchema = new Schema(
       select: false,
     },
     isVerified: { type: Boolean, default: false },
+    otp: String,
+    otpExpires: Date,
   },
   {
     //% Automatically adds createdAt and updated at fields in the document
