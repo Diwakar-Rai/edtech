@@ -1,14 +1,17 @@
 // !Third Party modules
 const express = require("express");
 const cors = require("cors");
+const passport = require("passport");
 
 // !Custom modules
+require("./config/passport.js");
 const connectDatabase = require("./config/db.config.js");
 const errorHandler = require("./middlewares/errorHandler.js");
 const envConfig = require("./config/index.config.js");
 const userRoutes = require("./routes/user.routes.js");
 const bootcampRoutes = require("./routes/bootcamp.routes.js");
 const courseRoutes = require("./routes/course.route.js");
+const googleRoutes = require("./routes/googleAuth.js");
 
 //% Destructuring the env
 const { PORT, MONGO_URL } = envConfig;
@@ -19,12 +22,18 @@ const app = express();
 //% Parsing the body of the request object
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+//%Handling the CORS
 app.use(cors());
+
+//% Using the passport js for google
+app.use(passport.initialize());
 
 //% Creating the routes
 app.use("/api/v1/auth", userRoutes);
 app.use("/api/v1/bootcamp", bootcampRoutes);
 app.use("/api/v1/course", courseRoutes);
+app.use("/api/v1", googleRoutes);
 
 //% Centralized error handling
 app.use(errorHandler);
