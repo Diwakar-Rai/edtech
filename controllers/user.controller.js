@@ -108,9 +108,7 @@ exports.loginUser = async (req, res, next) => {
         error: "Invalid email or password",
       });
     }
-    // console.log(user);
     let id = user._id.toString();
-    console.log(id);
     const token = generateToken(id);
     res.status(200).json({ message: "logged in successfully", token });
   } catch (error) {

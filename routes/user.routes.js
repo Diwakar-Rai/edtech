@@ -7,7 +7,6 @@ const {
 } = require("../middlewares/userValidator.js");
 const { validate } = require("../middlewares/validate.js");
 const { createUser, loginUser, getMe, emailVerification } = userController;
-
 Router.post("/user", registerValidatorRules(), validate, createUser);
 Router.post("/login", loginValidatorRules(), validate, loginUser);
 Router.get("/user", jwtVerify, getMe);

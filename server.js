@@ -1,10 +1,11 @@
 // !Third Party modules
+require("./config/passport.js");
 const express = require("express");
 const cors = require("cors");
 const passport = require("passport");
+const swaggerUi = require("swagger-ui-express");
 
 // !Custom modules
-require("./config/passport.js");
 const connectDatabase = require("./config/db.config.js");
 const errorHandler = require("./middlewares/errorHandler.js");
 const envConfig = require("./config/index.config.js");
@@ -12,6 +13,7 @@ const userRoutes = require("./routes/user.routes.js");
 const bootcampRoutes = require("./routes/bootcamp.routes.js");
 const courseRoutes = require("./routes/course.route.js");
 const googleRoutes = require("./routes/googleAuth.js");
+const { specs } = require("./config/swagger.config.js");
 
 //% Destructuring the env
 const { PORT, MONGO_URL } = envConfig;
@@ -22,6 +24,9 @@ const app = express();
 //% Parsing the body of the request object
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+//%Swagger Documentation
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 //%Handling the CORS
 app.use(cors());
@@ -46,6 +51,7 @@ const startServer = async () => {
     //% Listening to the server
     let server = app.listen(PORT, () => {
       console.log("server running on PORT ", PORT);
+      console.log("API Docs available at http://localhost:5000/api-docs");
     });
 
     //% Handling the error received while listening
